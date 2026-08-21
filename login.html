@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เข้าสู่ระบบ · EV Charger Proposal Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;600;700&family=Chakra+Petch:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0B2036;
+  --ink-soft:#4A5D72;
+  --paper:#F6F9FB;
+  --card:#FFFFFF;
+  --line:#DCE6EE;
+  --blue:#1C7ED6;
+  --teal:#14B892;
+  --grad: linear-gradient(100deg,#1C7ED6 0%, #14B892 100%);
+  --red:#D93B2B;
+  --shadow: 0 1px 2px rgba(11,32,54,.06), 0 6px 20px rgba(11,32,54,.06);
+  --radius: 14px;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Sarabun',sans-serif;
+  background:var(--paper);
+  color:var(--ink);
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+h1,h2,h3,.display{font-family:'Chakra Petch',sans-serif;letter-spacing:.2px;}
+
+.wrap{width:100%;max-width:420px;}
+.brand{text-align:center;margin-bottom:22px;}
+  .brand .logo{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:120px;height:auto;margin-bottom:10px;
+  }
+  .brand .logo img{width:100%;height:auto;display:block;}
+.brand h1{font-size:19px;margin:0 0 4px;color:var(--ink);}
+.brand p{margin:0;font-size:13px;color:var(--ink-soft);}
+
+.card{
+  background:var(--card);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:28px 26px;
+}
+
+.mode-switch{
+  display:flex;background:var(--paper);border-radius:999px;padding:4px;margin-bottom:22px;
+}
+.mode-switch button{
+  flex:1;border:none;background:transparent;padding:9px 0;border-radius:999px;
+  font-family:'Sarabun',sans-serif;font-size:13.5px;font-weight:600;color:var(--ink-soft);
+  cursor:pointer;transition:.15s;
+}
+.mode-switch button.active{background:var(--ink);color:#fff;}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--ink-soft);margin-bottom:5px;}
+.field input{
+  width:100%;padding:11px 13px;border:1px solid var(--line);border-radius:10px;
+  font-family:'Sarabun',sans-serif;font-size:14px;color:var(--ink);
+}
+.field input:focus{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue);}
+
+.btn-primary{
+  width:100%;padding:12px 0;border:none;border-radius:10px;background:var(--grad);
+  color:#fff;font-family:'Sarabun',sans-serif;font-size:14.5px;font-weight:700;
+  cursor:pointer;margin-top:6px;transition:.15s;
+}
+.btn-primary:hover{opacity:.92;}
+.btn-primary:disabled{opacity:.55;cursor:not-allowed;}
+
+.msg{
+  font-size:13px;padding:10px 12px;border-radius:9px;margin-bottom:14px;display:none;
+}
+.msg.error{display:block;background:#FCEBEA;color:var(--red);}
+.msg.info{display:block;background:#E9F5FF;color:#0B5FA5;}
+
+.foot-hint{text-align:center;font-size:12px;color:var(--ink-soft);margin-top:18px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">
+    <div class="logo"><img src="logo.jpg" alt="Entech Energy"></div>
+    <h1>EV Charger Proposal Builder</h1>
+    <p>เข้าสู่ระบบเพื่อเริ่มสร้างข้อเสนอสถานีชาร์จ EV</p>
+  </div>
+
+  <div class="card">
+    <div class="mode-switch">
+      <button id="tabLogin" class="active" onclick="setMode('login')">เข้าสู่ระบบ</button>
+      <button id="tabSignup" onclick="setMode('signup')">สมัครสมาชิก</button>
+    </div>
+
+    <div id="msgBox" class="msg"></div>
+
+    <form id="authForm" onsubmit="return false;">
+      <div class="field">
+        <label>อีเมล</label>
+        <input type="email" id="email" placeholder="name@company.co.th" autocomplete="email" required>
+      </div>
+      <div class="field">
+        <label>รหัสผ่าน</label>
+        <input type="password" id="password" placeholder="อย่างน้อย 6 ตัวอักษร" autocomplete="current-password" required>
+      </div>
+      <button class="btn-primary" id="submitBtn" onclick="submitForm()">เข้าสู่ระบบ</button>
+    </form>
+
+    <p class="foot-hint" id="footHint">ยังไม่มีบัญชี? กด "สมัครสมาชิก" ด้านบน</p>
+  </div>
+</div>
+
+<!-- Firebase SDK (compat build — ใช้งานง่ายแบบ script tag ไม่ต้องมี build tool) -->
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+let mode = 'login'; // 'login' | 'signup'
+
+function setMode(m){
+  mode = m;
+  document.getElementById('tabLogin').classList.toggle('active', m==='login');
+  document.getElementById('tabSignup').classList.toggle('active', m==='signup');
+  document.getElementById('submitBtn').textContent = m==='login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
+  document.getElementById('footHint').textContent = m==='login'
+    ? 'ยังไม่มีบัญชี? กด "สมัครสมาชิก" ด้านบน'
+    : 'มีบัญชีอยู่แล้ว? กด "เข้าสู่ระบบ" ด้านบน';
+  hideMsg();
+}
+
+function showMsg(text, type){
+  const box = document.getElementById('msgBox');
+  box.textContent = text;
+  box.className = 'msg ' + type;
+}
+function hideMsg(){
+  const box = document.getElementById('msgBox');
+  box.className = 'msg';
+  box.textContent = '';
+}
+
+// แปล error code ของ Firebase Auth ให้อ่านง่ายเป็นภาษาไทย
+function friendlyError(code){
+  const map = {
+    'auth/invalid-email': 'รูปแบบอีเมลไม่ถูกต้อง',
+    'auth/user-not-found': 'ไม่พบบัญชีนี้ในระบบ กรุณาสมัครสมาชิกก่อน',
+    'auth/wrong-password': 'รหัสผ่านไม่ถูกต้อง',
+    'auth/invalid-credential': 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+    'auth/email-already-in-use': 'อีเมลนี้ถูกใช้สมัครไปแล้ว กรุณาเข้าสู่ระบบแทน',
+    'auth/weak-password': 'รหัสผ่านสั้นเกินไป ต้องมีอย่างน้อย 6 ตัวอักษร',
+    'auth/too-many-requests': 'พยายามเข้าสู่ระบบผิดหลายครั้งเกินไป กรุณารอสักครู่แล้วลองใหม่',
+  };
+  return map[code] || 'เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง';
+}
+
+function submitForm(){
+  hideMsg();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('submitBtn');
+
+  if(!email || !password){
+    showMsg('กรุณากรอกอีเมลและรหัสผ่านให้ครบ', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  const action = mode === 'login'
+    ? auth.signInWithEmailAndPassword(email, password)
+    : auth.createUserWithEmailAndPassword(email, password);
+
+  action
+    .then(() => {
+      // login สำเร็จ → ไปหน้าโปรแกรมหลัก
+      window.location.href = 'index.html';
+    })
+    .catch(err => {
+      showMsg(friendlyError(err.code), 'error');
+      btn.disabled = false;
+    });
+}
+
+// ถ้า login ค้างอยู่แล้ว (เช่นเปิดหน้านี้ซ้ำ) ให้เด้งเข้าโปรแกรมหลักทันที
+auth.onAuthStateChanged(user => {
+  if(user){
+    window.location.href = 'index.html';
+  }
+});
+</script>
+</body>
+</html>
