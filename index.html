@@ -194,8 +194,13 @@ table.eqtable td.num{text-align:right;font-variant-numeric:tabular-nums;}
 .infotable{width:100%;border-collapse:collapse;font-size:13.5px;}
 .infotable td{padding:10px 12px;border:1px solid var(--line);vertical-align:top;}
 .infotable td.k{width:180px;background:var(--paper);font-weight:600;color:var(--ink-soft);}
-.doc-img-wrap{border-radius:10px;overflow:hidden;border:1px solid var(--line);position:relative;}
+.doc-img-wrap{overflow:hidden;position:relative;border:none;outline:none;box-shadow:none;background:transparent;}
 .doc-img-wrap img{width:100%;display:block;}
+/* ===== Fixed Image Area (no visible frame) — ใช้กับรูปที่อัปโหลดในหัวข้อผังสถานี/ตำแหน่งติดตั้ง ===== */
+.station-layout-fixed,.installation-layout-fixed{width:16cm;max-width:100%;height:230px;margin:0 auto;overflow:hidden;display:flex;align-items:center;justify-content:center;border:none;outline:none;box-shadow:none;background:transparent;}
+.station-layout-fixed .doc-img-wrap,.installation-layout-fixed .doc-img-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:none;outline:none;box-shadow:none;background:transparent;}
+.station-layout-fixed .doc-img-wrap img,.installation-layout-fixed .doc-img-wrap img{width:auto;max-width:100%;height:auto;max-height:100%;object-fit:contain;display:block;}
+.station-layout-fixed .placeholder-box,.installation-layout-fixed .placeholder-box{border:none;background:transparent;}
 .placeholder-box{border:1.5px dashed var(--line);border-radius:10px;padding:40px;text-align:center;color:var(--ink-soft);font-size:13px;background:var(--paper);}
 .pricetable{width:100%;border-collapse:collapse;font-size:13px;margin-top:4px;}
 .pricetable th{background:var(--ink);color:#fff;padding:9px 10px;text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.3px;}
@@ -235,9 +240,6 @@ table.eqtable td.num{text-align:right;font-variant-numeric:tabular-nums;}
   #proposalDoc .proposal-page:nth-child(6) .pricetable th{padding:5px 7px;}
   #proposalDoc .proposal-page:nth-child(6) .proposal-block{margin-bottom:22px !important;}
 
-  .station-layout-fixed{width:100%;max-width:100%;height:190px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-  .station-layout-fixed .doc-img-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;}
-  .station-layout-fixed .doc-img-wrap img{width:auto;max-width:100%;height:auto;max-height:100%;object-fit:contain;}
   .spec-card{margin-bottom:18px;}
   .proposal-page .pg-header{break-inside:avoid;page-break-inside:avoid;}
   .no-print{display:none !important;}
@@ -257,7 +259,7 @@ table.eqtable td.num{text-align:right;font-variant-numeric:tabular-nums;}
   .auto-output{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:7px 9px;font-size:12.5px;color:var(--ink);}
   .current-output{background:#F0F7F4;border:1px solid #CDE9DE;border-radius:8px;padding:7px 9px;font-size:12px;color:#145A47;line-height:1.45;}
   .roi-chart{margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:#fff;}
-  @media print{.roi-chart{break-inside:avoid;page-break-inside:avoid;} .station-layout-fixed{height:330px;} .installation-layout-fixed{height:330px;overflow:hidden;display:flex;align-items:center;justify-content:center;} .installation-layout-fixed .doc-img-wrap{width:100%;height:100%;display:flex;align-items:center;justify-content:center;} .installation-layout-fixed .doc-img-wrap img{width:auto;max-width:100%;height:auto;max-height:100%;object-fit:contain;}}
+  @media print{.roi-chart{break-inside:avoid;page-break-inside:avoid;}}
 }
 
 /* ===== comparison proposal module ===== */
